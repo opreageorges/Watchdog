@@ -1,0 +1,27 @@
+# !/bin/bash 
+
+echo "Introduceti numele programului urmarit"
+cd "$(dirname "${BASH_SOURCE[0]}")/"
+
+while true
+	do
+	read buff1 buff2	
+		if [ "${buff1}." = "." ]; then
+		break
+		fi
+	
+		if [ "${buff2}." = "." ]; then
+		echo $buff1 >> ./Storage/watchlist
+		fi
+
+	done
+./Storage/bite
+
+if [ "($(cat ./Storage/watchlist))." = "." ]; then
+	kill ./script
+fi
+
+sleep 5
+
+
+
