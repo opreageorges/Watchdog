@@ -21,7 +21,6 @@ if [ "($(cat ./Storage/watchlist))." = "." ]; then
 	kill ./script
 fi
 
-sleep 5
 
 
 
