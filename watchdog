@@ -1,0 +1,74 @@
+# !/bin/bash
+
+sudo cgclear
+
+cd "$(dirname "${BASH_SOURCE[0]}")/"
+
+if [ "$(cat ./Storage/firsttimeuse)" = "schimba cand termini ca sa stearga fist use" ]
+then
+	./Storage/check
+	rm ./Storage/firsttimeuse
+	cd "$(dirname "${BASH_SOURCE[0]}")/"
+fi
+
+wlimit="unlimited"
+if [ "$1" = "-limit" ]
+then
+	if [[ $2 != '^[0-9]+$' ]]
+	then
+		echo "Eroare! Limita trebuie sa fie un numar natural"
+		exit 1
+	fi
+
+	if [ $2 -eq 0]
+	then
+		wlimit="unlimited"
+	else
+		wlimit=$2
+	fi
+fi
+
+#if [ "$1" = "-pid" ] WIP
+#then
+	#shift
+#fi
+
+while [ "$1." != "." ]
+do
+	declare -a v
+
+
+	if [ "$1" = "-rm" ]
+	then
+		#WIP
+		shift
+	else
+		if [ "$1" = "-add" ]
+		then
+			shift
+		fi
+	
+		test1=($(apt-cache policy $1 | head -n 1 ))
+		if [ "$test1" = "$1:" ]
+		then
+			test2=($(apt-cache policy $1 | head -n 2 | grep -o \(none\) ))
+		else
+			echo 'Programul nu exista'
+			test2="nope"
+		fi
+			
+			if [ "$test2." = "(none)." ]; then
+				echo 'Programul nu este instalat'
+			elif [ "$test2" != "nope" ]
+			then		
+				v= "$( pgrep $1 )"
+				if [ "$v." = "."  ]
+				then
+					$1
+				fi
+				unset v
+			fi
+	fi
+	shift
+done
+
