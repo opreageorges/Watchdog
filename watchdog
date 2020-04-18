@@ -1,10 +1,10 @@
-# !/bin/bash
+#!/bin/bash
 
 sudo cgclear
 
 cd "$(dirname "${BASH_SOURCE[0]}")/"
 
-if [ "$(cat ./Storage/firsttimeuse)" = "schimba cand termini ca sa stearga fist use" ]
+if [ "$(cat ./Storage/firsttimeuse)" = "1" ]
 then
 	./Storage/check
 	rm ./Storage/firsttimeuse
