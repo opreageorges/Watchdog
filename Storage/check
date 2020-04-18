@@ -1,4 +1,4 @@
-# !/bin/bash
+#!/bin/bash
 
 cd "$(dirname "${BASH_SOURCE[0]}")/"
 sudo cp ./Manwatchdog.gz /usr/share/man/man1/watchdog.1.gz
