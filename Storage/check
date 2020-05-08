@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+#Un sub script care ruleaza la prima utilizare(adica cand in firsttimeuse e 1) si face niste modificari necesare
+
+cd "$(dirname $BASH_SOURCE)"
+
+sudo chmod 777 ./watcher
+sudo chmod 777 ./auto
+
+prog1=($(apt-cache policy cgroup-bin | head -n 2 | grep -o \(none\)))
+
+if [ "$prog1." = "(none)." ]; then
+	sudo apt install cgroup-bin
+	prog1=($(apt-cache policy cgroup-bin | head -n 2 | grep -o \(none\)))
+	if [ "$prog1." = "(none)." ]; then
+        	exit 1
+	fi
+
+fi
+
+exit 0

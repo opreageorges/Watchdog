@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+
+#Un sub script care adauga sau scoate un program de pe lista programelor sub actiunea watchdog si totodata le impune si restrictiile aferente
+
+cd "$(dirname $BASH_SOURCE)"
+
+if [ "$1" = "-rm" ]
+then
+	sudo cgdelete "memory:$2"
+        cat ./watchlist | echo "$(grep -v "$2")" > ./watchlist
+elif [ "$1" = "-add" ]
+then
+	shift
+	wlimit=$1
+	test1=($(apt-cache policy $2 | head -n 1 ))
+        if [ "$test1" = "$2:" ]
+        then
+                test2=($(apt-cache policy $2 | head -n 2 | grep -o '(none)' ))
+        else
+                echo "Programul $2 nu exista"
+        	exit 1
+	fi
+
+        if [ "$test2." = "(none)." ]
+        then
+               echo "Programul $2 nu este instalat"
+        else
+		v="$( pgrep $2 )"
+                if [ "$v." = "."  ]
+                then
+			$2 </dev/null &>/dev/null &
+			sleep 2
+                        v="$(pgrep $2)"
+                fi
+		echo "$2" >> ./watchlist
+		sleep 2
+                sudo cgcreate -g "memory:$2"
+                sudo cgset -r memory.limit_in_bytes="$wlimit" "$2"
+                sudo cgclassify -g "memory:$2" $v
+	fi
+fi
+exit 0

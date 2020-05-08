@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+#Un sub script care verifica daca un program nu rezista sa ruleze sub limitele impuse si il reporneste(fara limite)
+
+cd "$(dirname $BASH_SOURCE)"
+
+declare -a v
+v=($(cat ./watchlist))
+if [ "${v[*]}." = " ." ]
+then
+	a=$(ps -o pid,cmd $(pidof watch) | grep ./Storage/auto)
+	kill ${a%w*}
+	exit 0
+fi
+
+for i in ${v[*]}
+do
+	if [ "$(pidof $i)." = "." ]
+	then
+		../watchdog -rm $i
+		$i </dev/null &>/dev/null &
+	fi
+done
+
+exit 0
