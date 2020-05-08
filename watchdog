@@ -1,74 +1,80 @@
 #!/bin/bash
 
-sudo cgclear
+#Corpul principal al scriptului care transforma limita intr-un numar(daca nu este deja), opreste toate operatiile cand este impus -stop si ruleaza sub scripturile necesare 
 
-cd "$(dirname "${BASH_SOURCE[0]}")/"
+cd "$(dirname $BASH_SOURCE)"
 
 if [ "$(cat ./Storage/firsttimeuse)" = "1" ]
 then
+	sudo chmod 777 ./Storage/check
 	./Storage/check
-	rm ./Storage/firsttimeuse
-	cd "$(dirname "${BASH_SOURCE[0]}")/"
-fi
-
-wlimit="unlimited"
-if [ "$1" = "-limit" ]
-then
-	if [[ $2 != '^[0-9]+$' ]]
-	then
-		echo "Eroare! Limita trebuie sa fie un numar natural"
+	if [ $? -eq 1  ]; then 
+		echo 'Componentele necesare nu au putut fi instalate'
 		exit 1
 	fi
-
-	if [ $2 -eq 0]
-	then
-		wlimit="unlimited"
-	else
-		wlimit=$2
-	fi
+	echo "0" > ./Storage/firsttimeuse
 fi
 
-#if [ "$1" = "-pid" ] WIP
-#then
-	#shift
-#fi
+if [ "$1" = "-stop" ]
+then
+	for i in $(cat ./Storage/watchlist)
+	do
+		sudo cgdelete -g "memory:$i"
+	done	
+	echo " " > ./Storage/watchlist
+	exit 0
+fi
+
+if [ "$1" = "-rm" ]
+then
+	shift
+        while [ "$1." != "." ]
+        do
+                if [ "$1" = "-add" ]
+		then
+			shift
+			break
+		fi
+		./Storage/watcher -rm $1
+		shift
+        done
+fi
+
+if [ "$1" = "." ]
+then
+	exit 0
+fi
+
+wlimit=$(echo "$1" | tr -d [kmg])
+
+i=${1:((${#1}-1))}
+
+if [ $wlimit -eq $wlimit ]
+then
+        shift
+else
+        echo "Eroare! Limita trebuie sa fie un numar natural"
+fi
+
+if [ "$i" = "k" ]
+then
+	wlimit=$(($wlimit*1024))
+elif [ "$i" = "m" ]
+then
+	 wlimit=$(($(($wlimit*1024))*1024 ))
+elif [ "$i" = "g" ]
+then
+	 wlimit=$(($(($(($wlimit*1024))*1024))*1024))
+fi
+
+unset i
 
 while [ "$1." != "." ]
 do
-	declare -a v
-
-
-	if [ "$1" = "-rm" ]
-	then
-		#WIP
-		shift
-	else
-		if [ "$1" = "-add" ]
-		then
-			shift
-		fi
-	
-		test1=($(apt-cache policy $1 | head -n 1 ))
-		if [ "$test1" = "$1:" ]
-		then
-			test2=($(apt-cache policy $1 | head -n 2 | grep -o \(none\) ))
-		else
-			echo 'Programul nu exista'
-			test2="nope"
-		fi
-			
-			if [ "$test2." = "(none)." ]; then
-				echo 'Programul nu este instalat'
-			elif [ "$test2" != "nope" ]
-			then		
-				v= "$( pgrep $1 )"
-				if [ "$v." = "."  ]
-				then
-					$1
-				fi
-				unset v
-			fi
-	fi
+	./Storage/watcher -add $wlimit $1 
 	shift
 done
 
+watch -n 5 ./Storage/auto </dev/null &>/dev/null &
+
+exit 0
